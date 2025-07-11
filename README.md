@@ -8,7 +8,7 @@ La plantilla original incluía las carpetas descritas a continuación, pero noso
 - **`Datos`**: Esta carpeta incluirá los conjuntos de datos utilizados en el proyecto. Puede contener archivos CSV, JSON o cualquier otro formato de datos relevante para el análisis y entrenamiento del modelo.
 - **`Documentos`**: Esta carpeta contendrá todos los documentos y archivos relacionados con la documentación del proyecto. Aquí se incluirán informes, presentaciones y cualquier material de soporte o entrega.
 
-Además, la plantilla original contiene los siguientes elementos:
+Además, la plantilla original contiene los siguientes elementos que se encuentran en la carpeta **`CarpetasTemplate`**:
 
 * **`src`**: Esta carpeta originalmente contenía el código o implementación del proyecto en Python.
 * **`docs`**: Aquí se encuentran las plantillas de los documentos definidos en la metodología.
