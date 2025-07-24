@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Personalidad</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="cyber-container">
+        <div class="cyber-card">
+            <div class="cyber-header">
+                <div class="cyber-logo">NEUROSCAN</div>
+                <h1 class="cyber-title">TEST DE PERSONALIDAD</h1>
+                <div class="cyber-subtitle">¿Introvertido o Extrovertido?</div>
+            </div>
+            
+            <div class="cyber-divider"></div>
+            
+            <form id="predict-form" class="cyber-form">
+                <!-- Campo 1 -->
+                <div class="cyber-input-group">
+                    <label for="Time_spent_Alone">
+                        <span class="cyber-label">HORAS DIARIAS EN SOLEDAD</span>
+                        <span class="cyber-range">(0-11 horas)</span>
+                    </label>
+                    <div class="cyber-input-container">
+                        <input type="number" id="Time_spent_Alone" name="Time_spent_Alone" min="0" max="11" required>
+                        <span class="cyber-unit">hrs/día</span>
+                    </div>
+                </div>
+                
+                <!-- Campo 2 -->
+                <div class="cyber-input-group">
+                    <label for="Stage_fear">
+                        <span class="cyber-label">MIEDO ESCÉNICO</span>
+                    </label>
+                    <select id="Stage_fear" name="Stage_fear" required class="cyber-select">
+                        <option value="" disabled selected>SELECCIONE</option>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                
+                <!-- Campo 3 -->
+                <div class="cyber-input-group">
+                    <label for="Social_event_attendance">
+                        <span class="cyber-label">EVENTOS SOCIALES SEMANALES</span>
+                        <span class="cyber-range">(0-10 eventos)</span>
+                    </label>
+                    <div class="cyber-input-container">
+                        <input type="number" id="Social_event_attendance" name="Social_event_attendance" min="0" max="10" required>
+                        <span class="cyber-unit">por semana</span>
+                    </div>
+                </div>
+                
+                <!-- Campo 4 -->
+                <div class="cyber-input-group">
+                    <label for="Going_outside">
+                        <span class="cyber-label">SALIDAS SEMANALES</span>
+                        <span class="cyber-range">(0-7 salidas)</span>
+                    </label>
+                    <div class="cyber-input-container">
+                        <input type="number" id="Going_outside" name="Going_outside" min="0" max="7" required>
+                        <span class="cyber-unit">por semana</span>
+                    </div>
+                </div>
+                
+                <!-- Campo 5 -->
+                <div class="cyber-input-group">
+                    <label for="Drained_after_socializing">
+                        <span class="cyber-label">AGOTAMIENTO POST-SOCIAL</span>
+                    </label>
+                    <select id="Drained_after_socializing" name="Drained_after_socializing" required class="cyber-select">
+                        <option value="" disabled selected>SELECCIONE</option>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="cyber-button">
+                    <span class="cyber-button-text">ANALIZAR</span>
+                    <span class="cyber-button-glow"></span>
+                </button>
+            </form>
+            
+            <div id="result" class="cyber-result">
+                <div class="cyber-result-inner">
+                    <div class="cyber-scanning" id="scanning-animation">
+                        <div class="cyber-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span>PROCESANDO RESULTADOS</span>
+                    </div>
+                    <div class="cyber-result-content" id="result-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("predict-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            // Mostrar animación de análisis
+            document.getElementById("scanning-animation").style.display = "flex";
+            document.getElementById("result-content").style.display = "none";
+            document.querySelector(".cyber-result").style.display = "block";
+            
+            // Validar todos los campos
+            const campos = [
+                {id: "Time_spent_Alone", min: 0, max: 11, nombre: "Horas en soledad"},
+                {id: "Social_event_attendance", min: 0, max: 10, nombre: "Eventos sociales"},
+                {id: "Going_outside", min: 0, max: 7, nombre: "Salidas"}
+            ];
+            
+            for (const campo of campos) {
+                const elemento = document.getElementById(campo.id);
+                const valor = parseInt(elemento.value);
+                
+                if (isNaN(valor) || valor < campo.min || valor > campo.max) {
+                    alert(`Por favor ingresa un valor válido para ${campo.nombre} (entre ${campo.min} y ${campo.max})`);
+                    document.getElementById("scanning-animation").style.display = "none";
+                    return;
+                }
+            }
+            
+            // Preparar datos
+            const formData = new FormData(event.target);
+            const data = {
+                Time_spent_Alone: parseInt(formData.get("Time_spent_Alone")),
+                Stage_fear: parseInt(formData.get("Stage_fear")),
+                Social_event_attendance: parseInt(formData.get("Social_event_attendance")),
+                Going_outside: parseInt(formData.get("Going_outside")),
+                Drained_after_socializing: parseInt(formData.get("Drained_after_socializing"))
+            };
+            
+            // Simular retraso de procesamiento
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    mostrarResultado(result.prediction);
+                } else {
+                    throw new Error('Error en el análisis');
+                }
+            } catch (error) {
+                mostrarError();
+            }
+        });
+        
+        function mostrarResultado(prediccion) {
+            const esExtrovertido = prediccion === 1;
+            const elementoResultado = document.getElementById("result-content");
+            
+            document.getElementById("scanning-animation").style.display = "none";
+            elementoResultado.style.display = "block";
+            
+            elementoResultado.innerHTML = `
+                <div class="cyber-result-header ${esExtrovertido ? 'extrovert' : 'introvert'}">
+                    RESULTADO: ${esExtrovertido ? 'EXTROVERTIDO' : 'INTROVERTIDO'}
+                </div>
+            `;
+        }
+        
+        function mostrarError() {
+            document.getElementById("scanning-animation").style.display = "none";
+            const elementoResultado = document.getElementById("result-content");
+            elementoResultado.style.display = "block";
+            elementoResultado.innerHTML = `
+                <div class="cyber-result-header error">
+                    ERROR EN EL ANÁLISIS
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
